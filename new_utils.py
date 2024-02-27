@@ -12,18 +12,68 @@
 """
 import numpy as np
 from numpy.typing import NDArray
+from typing import Type, Dict
+from sklearn.base import BaseEstimator
+from sklearn.model_selection import (
+    cross_validate,
+    KFold,
+)
 
-#1-B
-def scale_data(X_bi = NDArray[np.floating]):
-   if not issubclass(X_bi.dtype.type, np.floating) or (X_bi < 0).any() or (X_bi > 1).any():
-      return False
-      
-   return True
+def scale_data(X):
+   X=(X - X.min())  / (X.max() - X.min())
+   return X
 
-#1-B
-def scale_data_1(y_bi = NDArray[np.int32]):
-   if not issubclass(y_bi.dtype.type, np.int32):
-      return False
+def remove_90_9s(X:NDArray[np.floating], y:NDArray[np.int32]):
+   nine_idx = (y == 9)
 
-   return True
+   X_90 = X[nine_idx, :]
+   y_90 = y[nine_idx]
+
+   X_90=X_90[:int((X_90.shape[0])*0.1),:]
+   y_90=y_90[:int((y_90.shape[0])*0.1)]
+    
+   none_nine= (y!=9)
+   X_non_9 = X[none_nine, :]
+   y_non_9 = y[none_nine]
+    
+   fin_X=np.concatenate((X_non_9,X_90),axis=0)
+   fin_y=np.concatenate((y_non_9,y_90),axis=0)
+    
+   return fin_X, fin_y
+   
+def conf_mat_accuracy(matrix):
+   """
+   Calculate accuracy from a confusion matrix.
+   """
+   TruePositive = matrix[1, 1]  
+   TrueNegative = matrix[0, 0]  
+   total_samples = matrix.sum()
+   accuracy = (TruePositive+ TrueNegative) / total_samples
+   return accuracy
+
+def convert_7_0(X: NDArray[np.floating], y: NDArray[np.int32]):
+   id_7=(y==7)
+   id_0=(y==0)
+   y[id_7]=0
+
+   return X,y
+
+def train_simple_classifier_with_cv(
+   *,
+   Xtrain: NDArray[np.floating],
+   ytrain: NDArray[np.int32],
+   clf: BaseEstimator,
+   cv: KFold = KFold,
+):
+   scores = cross_validation(clf,Xytain,ytrain, cv=cv,scoring="accuracy")
+   return scores
+
+
+def convert_9_1(X: NDArray[np.floating], y: NDArray[np.int32]):
+   id_9=(y==9)
+   id_1=(y==1)
+   y[id_9]=1
+
+   return X,y   
+
       
