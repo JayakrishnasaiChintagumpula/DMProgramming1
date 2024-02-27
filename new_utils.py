@@ -43,7 +43,7 @@ def remove9s(X:NDArray[np.floating], y:NDArray[np.int32]):
    
 def conf_mat_accuracy(matrix):
    """
-   Calculate accuracy from a confusion matrix.
+   We need to calculate accuracy from confusion matrix.
    """
    True_positive = matrix[1, 1]  
    True_negative = matrix[0, 0]  
@@ -58,14 +58,14 @@ def convert_7_0(X: NDArray[np.floating], y: NDArray[np.int32]):
 
    return X,y
 
-def train_simple_classifier_cv(
+def train_simple_classifier_with_cv(
    *,
-   X_train: NDArray[np.floating],
-   y_train: NDArray[np.int32],
+   Xtrain: NDArray[np.floating],
+   ytrain: NDArray[np.int32],
    clf: BaseEstimator,
    cv: KFold = KFold,
 ):
-   scores = cross_validation(clf,X_train,y_train, cv=cv,scoring="accuracy")
+   scores = cross_validation(clf,Xtrain,ytrain, cv=cv,scoring="accuracy")
    return scores
 
 
