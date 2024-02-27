@@ -61,7 +61,6 @@ class Section1:
     def partA(self):
         # Return 0 (ran ok) or -1 (did not run ok)
         answer = u.starter_code()
-        print("Part 1(A) - 0 means ran ok and -1 means did not run ok: " + str(answer))
         return answer
 
     # ----------------------------------------------------------------------
@@ -82,20 +81,20 @@ class Section1:
         X, y, Xtest, ytest = u.prepare_data()
         Xtrain, ytrain = u.filter_out_7_9s(X, y)
         Xtest, ytest = u.filter_out_7_9s(Xtest, ytest)
-        Xtrain = nu.scale_data(X_train)
-        Xtest = nu.scale_data(X_test)
+        Xtrain = nu.scale_data(Xtrain)
+        Xtest = nu.scale_data(Xtest)
 
         answer = {}
 
         # Enter your code and fill the `answer` dictionary
 
-        answer["length_Xtrain"] = len(X_train)  
-        answer["length_Xtest"] = len(X_test)
-        answer["length_ytrain"] = len(y_train)
-        answer["length_ytest"] = len(y_test)
+        answer["length_Xtrain"] = len(Xtrain)  
+        answer["length_Xtest"] = len(Xtest)
+        answer["length_ytrain"] = len(ytrain)
+        answer["length_ytest"] = len(ytest)
         answer["max_Xtrain"] = X_train.max()
         answer["max_Xtest"] = X_test.max()
-        return answer, Xtrain, y_train, X_test, y_test
+        return answer, Xtrain, ytrain, Xtest, ytest
 
     """
     C. Train your first classifier using k-fold cross validation (see train_simple_classifier_with_cv 
@@ -113,7 +112,7 @@ class Section1:
     ):
         clf=DecisionTreeClassifier(random_state=self.seed)
         cv=KFold(n_splits=5,shuffle=True,random_state=self.seed)
-        results=u.train_simple_classifier_cv(X_train=X,y_train=y,
+        results=u.train_simple_classifier_with_cv(Xtrain=X,ytrain=y,
                                              clf=clf,
                                              cv=cv)
         answer = {}
@@ -144,7 +143,7 @@ class Section1:
         clf=DecisionTreeClassifier(random_state=self.seed)
         cv=ShuffleSplit(n_splits=5,random_state=self.seed)
 
-        results=u.train_simple_classifier_cv(X_train=X,y_train=y,
+        results=u.train_simple_classifier_with_cv(Xtrain=X,ytrain=y,
                                              clf=clf,
                                              cv=cv)
         answer = {}
@@ -180,7 +179,7 @@ class Section1:
             clf=DecisionTreeClassifier(random_state=self.seed)
             cv=ShuffleSplit(n_splits=k,random_state=self.seed)
             
-            results=u.train_simple_classifier_cv(X_train=X,y_train=y
+            results=u.train_simple_classifier_with_cv(Xtrain=X,ytrain=y
                                                  clf=clf,
                                                  cv=cv)
             cv_dict={}
@@ -221,7 +220,7 @@ class Section1:
         clf_RF=RandomForestClassifier(random_state=self.seed)
         cv=ShuffleSplit(n_splits=5,random_state=self.seed)
         
-        results=u.train_simple_classifier_cv(X_train=X,y_train=y,
+        results=u.train_simple_classifier_with_cv(Xtrain=X,ytrain=y,
                                              clf=clf_RF,
                                              cv=cv)
 
@@ -242,13 +241,13 @@ class Section1:
         answer["scores_DT"] = part_D['scores']
 
         if cv_dict['mean_accuracy'] > part_D['scores']['mean_accuracy']:
-            answer["highest_model_accuracy"]='Random Forest'
+            answer["model_highest_accuracy"]='Random Forest'
         else:
-            answer["highest_model_accuracy"]='Decision Tree'
+            answer["model_highest_accuracy"]='Decision Tree'
        
-        answer["lowest_model_variance"]=min(cv_dict['std_accuracy']**2,part_D['scores']['std_accuracy']**2)
+        answer["model_lowest_variance"]=min(cv_dict['std_accuracy']**2,part_D['scores']['std_accuracy']**2)
 
-        answer["fastest_model"]=min(cv_dict['mean_fit_time'], part_D['scores']['mean_fit_time'])
+        answer["model_fastest"]=min(cv_dict['mean_fit_time'], part_D['scores']['mean_fit_time'])
 
         # Enter your code, construct the `answer` dictionary, and return it.
 
@@ -329,7 +328,7 @@ class Section1:
         y_test_pred_orig = clf_rf.predict(X_test)
 
         conf_matrix_orig = confusion_matrix(y, y_train_pred_orig)
-        conf_matrix_orig = confusion_matrix(y_test, y_test_pred_orig)
+        conf_matrix_orig = confusion_matrix(ytest, y_test_pred_orig)
 
         # Accuracies
         accuracy_train_orig = nu.conf_mat_accuracy(conf_matrix_train_orig)
@@ -337,9 +336,9 @@ class Section1:
         
         param_grid = { 'criterion': ['gini', 'entropy'],
                         'max_depth': [10, 20, 30, None],
-                        'minimum_samples_split': [2, 5, 10],
-                        'minimum_samples_leaf': [1, 2, 4],
-                        'maximum_features': ['sqrt', 'log2', None]   
+                        'min_samples_split': [2, 5, 10],
+                        'min_samples_leaf': [1, 2, 4],
+                        'max_features': ['sqrt', 'log2', None]   
                     }
         
         grid_search = GridSearchCV(estimator=clf_rf, param_grid=param_grid, cv=cv, scoring='accuracy')
